@@ -49,6 +49,19 @@ Monitoring: ✅ Pilot Monitor (do you mean Pilot
 Also consider:
 jest (comes with Create React App or can be added manually)
 
-8. Commands:
+7. Git Commands:
 npm install
 npm run start
+
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin <url>
+git pull --rebase origin main  
+git push origin main
+git status
+git diff :q
+
+npm install @tanstack/react-query 
+npm install @tanstack/react-query-devtools 
+npm install @reduxjs/toolkit react-redux
