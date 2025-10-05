@@ -6,6 +6,7 @@ import Users from "./pages/Users";
 import AddUser from "./pages/AddUser";
 import CounterUseState from "./pages/CounterUseState";
 import CounterUseReducer from "./pages/CounterUseReducer";
+import ThemeExamplePage from "./pages/ThemeExamplePage";
 
 const App = () => {
   return (
@@ -16,7 +17,8 @@ const App = () => {
               <Link to="/users">Users</Link> |
               <Link to="/add-user">Add User</Link> |
               <Link to="/counter-usestate">Counter (useState)</Link> |
-              <Link to="/counter-usereducer">Counter (useReducer)</Link>
+              <Link to="/counter-usereducer">Counter (useReducer)</Link> |
+              <Link to="/theme">Theme Context</Link>
       </nav>
 
       <Routes>
@@ -26,6 +28,7 @@ const App = () => {
               <Route path="/add-user" element={<AddUser />} />
               <Route path="/counter-usestate" element={<CounterUseState />} />
               <Route path="/counter-usereducer" element={<CounterUseReducer />} />
+              <Route path="/theme" element={<ThemeExamplePage />} />
       </Routes>
     </div>
   );
