@@ -8,19 +8,20 @@ Setup
 ✅ Webpack (not Vite)
 ✅ React Router
 
-2. Data Fetching & Caching
-useState:	Store users and loading
-useEffect:	Fetch data on first render
-useRef:	    Cache API result without re-fetching
+2. Data Fetching & Caching:
+useState:	Store users and loading,
+useEffect:	Fetch data on first render,
+useRef:	    Cache API result without re-fetching.
 
-Use useEffect and useState to handle async fetch.
-Add basic caching using useRef (not advanced tools like React Query yet).
 
-Learn the 4 Main State Management Options
-Local UI state:                    useState, useReducer
-Component tree (shared) state:     Context API
-Global app state                   Redux / Zustand / Jotai / MobX
-Server state (API data)            React Query / SWR
+- Use useEffect and useState to handle async fetch.
+- Add basic caching using useRef (not advanced tools like React Query yet).
+
+Learn the 4 Main State Management Options:
+- Local UI state:                    useState, useReducer
+- Component tree (shared) state:     Context API
+- Global app state                   Redux / Zustand / Jotai / MobX
+- Server state (API data)            React Query / SWR
 
 3. State Management
 CONSIDER 3 different types:
