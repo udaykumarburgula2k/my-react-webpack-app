@@ -1,55 +1,97 @@
-﻿import React from "react";
-import { useQuery } from "@tanstack/react-query";
+﻿import React, { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 
 interface User {
-  id: number;
-  name: string;
-  email: string;
+    id: number;
+    name: string;
+    email: string;
 }
 
-const fetchUsers = async (): Promise<User[]> => {
-  const res = await axios.get("https://jsonplaceholder.typicode.com/users");
-  return res.data;
-};
+const USERS_PER_PAGE = 2;
 
 const Users = () => {
-  const {
-    data: users,
-    isLoading,
-    isError,
-    error,
-    refetch,
-    isFetching
-  } = useQuery<User[], Error>({
-    queryKey: ["users"],
-    queryFn: fetchUsers,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    retry: 2
-  });
+    const [users, setUsers] = useState<User[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const cache = useRef<User[] | null>(null);
 
-  if (isLoading) return <p>Loading users...</p>;
+    const fetchUsers = useCallback(async () => {
+        if (cache.current) {
+            console.log("Serving from cache...");
+            setUsers(cache.current);
+            setLoading(false);
+            return;
+        }
 
-  if (isError)
+        setLoading(true);
+        setError(null); // Reset previous error
+
+        try {
+            const response = await axios.get<User[]>(
+                "https://jsonplaceholder.typicode.com/users"
+            );
+            setUsers(response.data);
+            cache.current = response.data; // cache the result
+        } catch (err) {
+            console.error("Error fetching users:", err);
+            setError("Failed to fetch users. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchUsers();
+    }, [fetchUsers]);
+
+    // Pagination logic
+    const totalPages = Math.ceil(users.length / USERS_PER_PAGE);
+    const startIndex = (currentPage - 1) * USERS_PER_PAGE;
+    const paginatedUsers = users.slice(startIndex, startIndex + USERS_PER_PAGE);
+
+    const goToPrevious = () => setCurrentPage((p) => Math.max(p - 1, 1));
+    const goToNext = () => setCurrentPage((p) => Math.min(p + 1, totalPages));
+
     return (
-      <div>
-        <p style={{ color: "red" }}>{error.message}</p>
-        <button onClick={() => refetch()}>Retry</button>
-      </div>
-    );
+        <div>
+            <h2>User List</h2>
 
-  return (
-    <div>
-      <h2>User List {isFetching && "(refreshing...)"}</h2>
-      <ul>
-        {users?.map((user) => (
-          <li key={user.id}>
-            <strong>{user.name}</strong> - {user.email}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+            {loading && <p>Loading users...</p>}
+
+            {!loading && error && (
+                <div>
+                    <p style={{ color: "red" }}>{error}</p>
+                    <button onClick={fetchUsers}>Retry</button> {/* ✅ Retry button */}
+                </div>
+            )}
+
+            {!loading && !error && (
+                <>
+                    <ul>
+                        {paginatedUsers.map((user) => (
+                            <li key={user.id}>
+                                <strong>{user.name}</strong> - {user.email}
+                            </li>
+                        ))}
+                    </ul>
+
+                    {/* Pagination controls */}
+                    <div style={{ marginTop: "1rem" }}>
+                        <button onClick={goToPrevious} disabled={currentPage === 1}>
+                            Previous
+                        </button>{" "}
+                        <span>
+                            Page {currentPage} of {totalPages}
+                        </span>{" "}
+                        <button onClick={goToNext} disabled={currentPage === totalPages}>
+                            Next
+                        </button>
+                    </div>
+                </>
+            )}
+        </div>
+    );
 };
 
 export default Users;
