@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 
-interface User{
-    id: number;
-    name: string;
-    email: string;
+interface User {
+  id: number;
+  name: string;
+  email: string;
 }
 
 const Users = () => {
@@ -13,31 +13,34 @@ const Users = () => {
   const [error, setError] = useState<string | null>(null);
   const cache = useRef<User[] | null>(null);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      if (cache.current) {
-        console.log("Serving from cache...");
-        setUsers(cache.current);
-        setLoading(false);
-        return;
-      }
+  const fetchUsers = useCallback(async () => {
+    if (cache.current) {
+      console.log("Serving from cache...");
+      setUsers(cache.current);
+      setLoading(false);
+      return;
+    }
 
-      try {
-        const response = await axios.get<User[]>(
-          "https://jsonplaceholder.typicode.com/users"
-        );
-        setUsers(response.data);
-        cache.current = response.data; // ✅ cache result
-      } catch (error) {
-        setError("Failed to fetch users. Please try again later."); // ❌ set error state
-        console.error("Error fetching users:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    setLoading(true);
+    setError(null); // Reset previous error
 
-    fetchUsers();
+    try {
+      const response = await axios.get<User[]>(
+        "https://jsonplaceholder.typicode.com/users"
+      );
+      setUsers(response.data);
+      cache.current = response.data; // cache the result
+    } catch (err) {
+      console.error("Error fetching users:", err);
+      setError("Failed to fetch users. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   return (
     <div>
@@ -48,9 +51,10 @@ const Users = () => {
       {!loading && error && (
         <div>
           <p style={{ color: "red" }}>{error}</p>
+          <button onClick={fetchUsers}>Retry</button> {/* ✅ Retry button */}
         </div>
       )}
-
+    
       {!loading && !error && (
         <ul>
           {users.map((user) => (
